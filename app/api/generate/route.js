@@ -24,7 +24,7 @@ export async function POST(request) {
       );
     }
 
-    const limit = Number(wordLimit) || 300;
+    const limit = Math.min(Number(wordLimit) || 250, 250);
 
     // Local demo mode: no API key, credits, or internet connection required.
     // This is intentionally simple while the interface is being developed.

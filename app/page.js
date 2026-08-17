@@ -8,7 +8,7 @@ const initial = {
   affiliation: "",
   discipline: "Earth Sciences",
   presentationType: "Poster Presentation",
-  wordLimit: 300,
+  wordLimit: 250,
   notes: ""
 };
 
@@ -36,7 +36,7 @@ export default function Home() {
       affiliation: "",
       discipline: "Earth Sciences",
       presentationType: "Poster Presentation",
-      wordLimit: 300,
+      wordLimit: 250,
       notes: `From an earth system perspective, river environments are home to many species (plant, animal and microbe) and these systems often supply drinking water. River flow connects a catchment with the ocean, and along this route the flowing water performs countless vital ecosystem and environmental services including transport. There is widespread acceptance that in the current climate conditions, atmospheric CO₂ is steadily increasing; however, the consequences of this stressor for freshwater ecosystems are relatively less understood than for seawater systems. In order to detect, predict or measure changing climate impacts on the system we must understand the baseline and variability of present-day aquatic CO₂ conditions. The ability to predict variability in river CO₂ concentrations and fluxes across multiple spatial and temporal scales remains challenging. We will resolve and elucidate the key controls on CO₂ concentrations and fluxes in a large temperate river system. We will undertake flow-following measurements of CO₂ concentrations, water quality parameters, flow velocities, and the dissipation rate of turbulent kinetic energy in the Waikato River. By understanding the hierarchy of controls for the Waikato River we will gain insights that are relevant to other river systems. Studies on rivers are needed to help advance global understanding of CO₂ mixing mechanisms and exchanges, and the role played by large temperate rivers in the carbon cycle and healthy ecosystem functioning.`
     });
   }
@@ -85,7 +85,7 @@ export default function Home() {
         <div>
           <div className="brand">SCIENTIFIC ABSTRACT BUILDER</div>
           <h1>Conference Abstract</h1>
-          <p>Provide the essential information for your study. The builder will turn it into one clear, conventional conference abstract.</p>
+          <p>Enter your conference details and paste or type your completed abstract below.</p>
         </div>
         <button className="text-button" onClick={loadExample}>Load example</button>
       </header>
@@ -132,11 +132,8 @@ export default function Home() {
                 <span className="label">Word limit</span>
                 <select value={form.wordLimit} onChange={e => set("wordLimit", Number(e.target.value))}>
                   <option value="250">250 words</option>
-                  <option value="300">300 words</option>
-                  <option value="350">350 words</option>
-                  <option value="400">400 words</option>
-                  <option value="500">500 words</option>
-                </select>
+                  <option value="300">250 words</option>
+                  </select>
               </label>
             </div>
           </div>
@@ -145,15 +142,15 @@ export default function Home() {
         <div className="section">
           <div className="section-label">02</div>
           <div className="section-content">
-            <h2>Scientific information</h2>
-            <p className="section-note">Paste your notes, draft text, research description, proposal text, or other scientific information. You do not need to structure it.</p>
+            <h2>Abstract</h2>
+            <p className="section-note">Paste or type your completed abstract. The builder will format it for the conference template.</p>
             <label className="field">
               <span className="label">Your information <b>*</b></span>
               <textarea
                 rows={18}
                 value={form.notes}
                 onChange={e => set("notes", e.target.value)}
-                placeholder="Write or paste everything the abstract should communicate. It can be rough, repetitive or unstructured."
+                placeholder="Paste or type your completed abstract here."
               />
             </label>
             <div className="input-footer">{inputWords} words provided</div>
@@ -162,13 +159,13 @@ export default function Home() {
 
         <div className="submit-area">
           <div>
-            <div className="submit-title">Generate a conventional abstract</div>
+            <div className="submit-title">Format Abstract</div>
             <div className="submit-note">One continuous academic narrative — no Methods or Results headings.</div>
           </div>
           <div className="submit-actions">
             <button className="text-button" onClick={clearAll}>Clear</button>
             <button className="primary" onClick={generate} disabled={loading}>
-              {loading ? "Generating…" : "Generate abstract"}
+              {loading ? "Generating…" : "Format Abstract"}
             </button>
           </div>
         </div>
@@ -192,10 +189,7 @@ export default function Home() {
 
           <article className="paper">
             <h2>{result.title || form.title}</h2>
-            <div className="paper-authors">
-  <strong>{form.authors.split(",")[0].trim()}</strong>
-  {form.authors.includes(",") ? ", " + form.authors.split(",").slice(1).join(",").trim() : ""}
-</div>
+            <div className="paper-authors">{form.authors}</div>
             {form.affiliation && <div className="paper-affiliation">{form.affiliation}</div>}
             <div className="paper-meta">{form.discipline} : {form.presentationType}</div>
             <p className="paper-abstract">{result.abstract}</p>
