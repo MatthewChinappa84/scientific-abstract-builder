@@ -194,11 +194,15 @@ export default function Home() {
 
           <article className="paper">
             <h2>{result.title || form.title}</h2>
-            <div className="paper-authors">{form.authors}</div>
+            <div className="paper-authors">
+  <strong>{form.authors.split(",")[0].trim()}</strong>
+  {form.authors.includes(",")
+    ? ", " + form.authors.split(",").slice(1).join(",").trim()
+    : ""}
+</div>
             {form.affiliation && <div className="paper-affiliation">{form.affiliation}</div>}
             <div className="paper-meta">{form.discipline} : {form.presentationType}</div>
             <p className="paper-abstract">{result.abstract}</p>
-            <div className="paper-page-number">1</div>
           </article>
         </section>
       )}
