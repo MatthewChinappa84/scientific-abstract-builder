@@ -47,7 +47,7 @@ button{cursor:pointer}
 .paper-authors{text-align:center;font-size:14px;line-height:1.4;margin-bottom:25px}
 .paper-affiliation{text-align:center;font-size:12px;line-height:1.4;margin-bottom:25px}
 .paper-meta{text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:38px}
-.paper-abstract{font-size:14px;line-height:1.46;margin:0;text-align:left}
+.paper-abstract{font-size:14px;line-height:1.46;margin:0;text-align:left text-align: justify;}
 .paper-page-number{position:absolute;right:92px;bottom:30px;font-size:12px}
 footer{text-align:center;color:#999;font-size:10px;padding:0 0 30px}
 @media print{
@@ -74,4 +74,13 @@ footer{text-align:center;color:#999;font-size:10px;padding:0 0 30px}
   .paper{padding:50px 28px;min-height:900px}
   .preview-head{display:block}
   .preview-actions{margin-top:12px;gap:14px;flex-wrap:wrap}
+}
+
+.paper-authors strong { font-weight: 700; }
+
+.word-count {
+  margin-top: 6px;
+  text-align: right;
+  font-size: 12px;
+  color: #666;
 }

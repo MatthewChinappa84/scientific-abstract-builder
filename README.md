@@ -1,4 +1,4 @@
-# Scientific Abstract Builder — V6
+# Scientific Abstract Builder — V7
 
 A minimal local-first conference abstract formatter based on the supplied conference abstract example.
 
@@ -10,11 +10,20 @@ It does **not** use AI rewriting and does not require an OpenAI API key or API c
 
 ## Word limit
 
-The abstract is capped at **250 words**.
+The abstract has a **hard maximum of 250 words**. Abstracts over 250 words are rejected rather than automatically truncated.
+
+The interface displays the live word count.
+
+## Formatting
+
+- Abstract text is fully justified.
+- The first author's name is bold.
+- Other authors remain normal weight.
+- Conference-style A4 output is preserved.
 
 ## Current mode
 
-This version runs in local demo mode. It does not call the OpenAI API, so no API credits or billing are required.
+This version runs in local demo mode. It does not call the OpenAI API.
 
 ## Run locally
 
@@ -24,7 +33,3 @@ npm run dev
 ```
 
 Open http://localhost:3000
-
-## Deployment
-
-The project can be deployed directly from GitHub to Vercel.

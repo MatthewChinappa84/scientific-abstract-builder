@@ -16,6 +16,11 @@ function wordCount(text) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
+
+function countWords(value) {
+  return value.trim() ? value.trim().split(/\s+/).length : 0;
+}
+
 export default function Home() {
   const [form, setForm] = useState(initial);
   const [result, setResult] = useState(null);
