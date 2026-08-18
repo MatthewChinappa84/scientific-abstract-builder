@@ -6,7 +6,7 @@ const initial = {
   title: "",
   authors: "",
   studentEmail: "",
-  discipline: "Earth Sciences",
+  discipline: "Earth Science",
   presentationType: "Poster Presentation",
   wordLimit: 250,
   notes: ""
@@ -298,13 +298,12 @@ export default function Home() {
                     set("discipline", e.target.value)
                   }
                 >
-                  <option>Earth Sciences</option>
-                  <option>Climate / Environmental Science</option>
-                  <option>Earth / Geoscience</option>
-                  <option>Physical Science</option>
-                  <option>Life Science</option>
-                  <option>Engineering</option>
-                  <option>Other</option>
+                  <option>Biology – Ecology and Biodiversity</option>
+		  <option>Biology – Molecular</option>
+		  <option>Biomedical Science</option>
+		  <option>Chemistry</option>
+		  <option>Earth Science</option>
+		  <option>Environmental Science</option>
                 </select>
               </label>
 
