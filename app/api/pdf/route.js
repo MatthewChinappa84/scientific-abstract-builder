@@ -1,4 +1,5 @@
-import { chromium } from "playwright";
+import { chromium as playwright } from "playwright-core";
+import chromium from "@sparticuz/chromium";
 
 export async function POST(request) {
   let browser;
@@ -28,18 +29,8 @@ export async function POST(request) {
       );
     }
 
-    browser = await chromium.launch({
-      headless: true
-    });
-
-    const page = await browser.newPage({
-      viewport: {
-        width: 794,
-        height: 1123
-      }
-    });
-
     const firstAuthor = authors.split(",")[0].trim();
+
     const remainingAuthors = authors.includes(",")
       ? ", " +
         authors
@@ -48,6 +39,22 @@ export async function POST(request) {
           .join(",")
           .trim()
       : "";
+
+    const executablePath =
+      await chromium.executablePath();
+
+    browser = await playwright.launch({
+      args: chromium.args,
+      executablePath,
+      headless: chromium.headless
+    });
+
+    const page = await browser.newPage({
+      viewport: {
+        width: 794,
+        height: 1123
+      }
+    });
 
     const html = `
       <!DOCTYPE html>
@@ -132,7 +139,7 @@ export async function POST(request) {
 
             <div class="meta">
               ${escapeHtml(
-                discipline || "Earth Sciences"
+                discipline || "Earth Science"
               )}
               :
               ${escapeHtml(
@@ -168,7 +175,8 @@ export async function POST(request) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="abstract.pdf"'
+        "Content-Disposition":
+          'attachment; filename="abstract.pdf"'
       }
     });
 
@@ -178,7 +186,8 @@ export async function POST(request) {
     return Response.json(
       {
         error:
-          error?.message || "PDF generation failed."
+          error?.message ||
+          "PDF generation failed."
       },
       { status: 500 }
     );

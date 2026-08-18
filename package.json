@@ -8,9 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^149.0.0",
     "next": "latest",
     "openai": "latest",
-    "playwright": "^1.62.1",
+    "playwright-core": "^1.62.1",
     "react": "latest",
     "react-dom": "latest"
   }
