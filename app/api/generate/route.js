@@ -1,55 +1,81 @@
-function trimToWordLimit(text, limit) {
-  const words = text.trim().split(/\s+/);
-  if (words.length <= limit) return text.trim();
-  return words.slice(0, limit).join(" ") + "…";
+function wordCount(text) {
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
 export async function POST(request) {
   try {
     const body = await request.json();
+
     const {
       title,
       authors,
-      affiliation,
+      studentEmail,
       discipline,
       presentationType,
-      wordLimit,
       notes
     } = body;
 
-    if (!title?.trim() || !authors?.trim() || !notes?.trim()) {
+    if (
+      !title?.trim() ||
+      !authors?.trim() ||
+      !studentEmail?.trim() ||
+      !notes?.trim()
+    ) {
       return Response.json(
-        { error: "Title, authors, and scientific information are required." },
+        {
+          error:
+            "Title, authors, student email, and completed abstract are required."
+        },
         { status: 400 }
       );
     }
 
-    const limit = 250;
+    const emailPattern =
+      /^[A-Za-z0-9]+@students\.waikato\.ac\.nz$/;
 
-    // Local demo mode: no API key, credits, or internet connection required.
-    // This is intentionally simple while the interface is being developed.
+    if (!emailPattern.test(studentEmail.trim())) {
+      return Response.json(
+        {
+          error:
+            "Please enter a valid University of Waikato student email address."
+        },
+        { status: 400 }
+      );
+    }
+
     const cleanNotes = notes
       .replace(/\s+/g, " ")
-      .replace(/^\s+|\s+$/g, "");
+      .trim();
 
-    const sentences = cleanNotes.match(/[^.!?]+[.!?]+/g) || [cleanNotes];
-    const selected = sentences.slice(0, 7).join(" ");
+    const count = wordCount(cleanNotes);
 
-    const abstract = trimToWordLimit(
-      selected ||
-        `This study examines ${title.toLowerCase()}. The work addresses an important scientific question within ${discipline || "the field"} and considers its implications for understanding the processes described in the study.`,
-      limit
-    );
+    if (count > 250) {
+      return Response.json(
+        {
+          error: `Your abstract contains ${count} words. Please reduce it to 250 words or fewer.`
+        },
+        { status: 400 }
+      );
+    }
 
     return Response.json({
       title: title.trim(),
-      abstract,
-      demo: true
+      abstract: cleanNotes,
+      studentEmail: studentEmail.trim(),
+      discipline: discipline || "Earth Sciences",
+      presentationType:
+        presentationType || "Poster Presentation",
+      wordCount: count
     });
+
   } catch (error) {
     console.error(error);
+
     return Response.json(
-      { error: error?.message || "Generation failed." },
+      {
+        error:
+          error?.message || "Formatting failed."
+      },
       { status: 500 }
     );
   }
