@@ -20,9 +20,12 @@ export default function Home() {
   const [form, setForm] = useState(initial);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [submitMessage, setSubmitMessage] = useState("");
 
   const inputWords = useMemo(() => wordCount(form.notes), [form.notes]);
+
   const outputWords = useMemo(
     () => (result ? wordCount(result.abstract) : 0),
     [result]
@@ -50,13 +53,14 @@ export default function Home() {
     setForm(initial);
     setResult(null);
     setError("");
+    setSubmitMessage("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function generate() {
     setError("");
+    setSubmitMessage("");
 
-    // Required fields
     if (
       !form.title.trim() ||
       !form.authors.trim() ||
@@ -69,17 +73,16 @@ export default function Home() {
       return;
     }
 
-    // University of Waikato student email validation
-    const emailPattern = /^[A-Za-z0-9]+@students\.waikato\.ac\.nz$/;
+    const emailPattern =
+      /^[A-Za-z0-9]+@students\.waikato\.ac\.nz$/;
 
     if (!emailPattern.test(form.studentEmail.trim())) {
       setError(
-        "Please enter a valid University of Waikato student email address, e.g. 1234567@students.waikato.ac.nz."
+        "Please enter a valid University of Waikato student email address."
       );
       return;
     }
 
-    // 250-word limit
     if (inputWords > 250) {
       setError(
         `Your abstract contains ${inputWords} words. Please reduce it to 250 words or fewer before formatting.`
@@ -123,6 +126,90 @@ export default function Home() {
     }
   }
 
+  async function submitAbstract() {
+    setError("");
+    setSubmitMessage("");
+
+    if (!result) {
+      setError("Please format your abstract before submitting.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      // Generate the final conference PDF
+      const pdfResponse = await fetch("/api/pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: result.title || form.title,
+          authors: form.authors,
+          discipline: form.discipline,
+          presentationType: form.presentationType,
+          abstract: result.abstract
+        })
+      });
+
+      if (!pdfResponse.ok) {
+        const pdfError = await pdfResponse.json().catch(() => null);
+
+        throw new Error(
+          pdfError?.error || "PDF generation failed."
+        );
+      }
+
+      const pdfBlob = await pdfResponse.blob();
+
+      // Convert PDF to Base64 for secure server-side submission
+      const arrayBuffer = await pdfBlob.arrayBuffer();
+
+      let binary = "";
+      const bytes = new Uint8Array(arrayBuffer);
+      const chunkSize = 0x8000;
+
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(
+          ...bytes.subarray(i, i + chunkSize)
+        );
+      }
+
+      const pdfBase64 = btoa(binary);
+
+      // Submit PDF to Google Drive + email system
+      const submitResponse = await fetch("/api/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          studentEmail: form.studentEmail.trim(),
+          title: result.title || form.title,
+          pdfBase64,
+          fileName: `${form.authors.split(",")[0].trim().replace(/[^A-Za-z0-9]+/g, "_")}_${(result.title || form.title).trim().replace(/[^A-Za-z0-9]+/g, "_").slice(0, 80)}.pdf`
+        })
+      });
+
+      const submitData = await submitResponse.json();
+
+      if (!submitResponse.ok) {
+        throw new Error(
+          submitData.error || "Submission failed."
+        );
+      }
+
+      setSubmitMessage(
+        "Your abstract has been successfully submitted. A PDF copy has been sent to your email."
+      );
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <main className="site">
       <div className="top-rule" />
@@ -130,7 +217,9 @@ export default function Home() {
       <header className="header">
         <div>
           <div className="brand">SCIENTIFIC ABSTRACT BUILDER</div>
+
           <h1>Conference Abstract</h1>
+
           <p>
             Enter your conference details and paste or type your completed
             abstract below.
@@ -295,7 +384,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* SUBMIT / FORMAT */}
+        {/* FORMAT */}
         <div className="submit-area">
           <div>
             <div className="submit-title">Format Abstract</div>
@@ -313,7 +402,7 @@ export default function Home() {
             <button
               className="primary"
               onClick={generate}
-              disabled={loading || inputWords > 250}
+              disabled={loading || submitting || inputWords > 250}
             >
               {loading ? "Formatting…" : "Format Abstract"}
             </button>
@@ -363,7 +452,7 @@ export default function Home() {
               <button
                 className="primary small"
                 onClick={generate}
-                disabled={loading || inputWords > 250}
+                disabled={loading || submitting || inputWords > 250}
               >
                 {loading ? "Formatting…" : "Reformat"}
               </button>
@@ -377,7 +466,6 @@ export default function Home() {
               {result.title || form.title}
             </h2>
 
-            {/* FIRST AUTHOR BOLD */}
             <div className="paper-authors">
               <strong>
                 {form.authors.split(",")[0].trim()}
@@ -393,17 +481,48 @@ export default function Home() {
                 : ""}
             </div>
 
-            {/* DISCIPLINE / PRESENTATION */}
             <div className="paper-meta">
               {form.discipline} : {form.presentationType}
             </div>
 
-            {/* ABSTRACT */}
             <p className="paper-abstract">
               {result.abstract}
             </p>
 
           </article>
+
+          {/* FINAL SUBMISSION */}
+          <div className="final-submit-area">
+
+            <div>
+              <div className="submit-title">
+                Submit Abstract
+              </div>
+
+              <div className="submit-note">
+                Your formatted abstract will be saved as a PDF and submitted
+                to the conference.
+              </div>
+            </div>
+
+            <button
+              className="primary"
+              onClick={submitAbstract}
+              disabled={submitting}
+            >
+              {submitting
+                ? "Submitting…"
+                : "Submit Abstract"}
+            </button>
+
+          </div>
+
+          {submitMessage && (
+            <div className="message success">
+              {submitMessage}
+            </div>
+          )}
+
         </section>
       )}
 
