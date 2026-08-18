@@ -10,6 +10,7 @@
   "dependencies": {
     "next": "latest",
     "openai": "latest",
+    "playwright": "^1.62.1",
     "react": "latest",
     "react-dom": "latest"
   }
